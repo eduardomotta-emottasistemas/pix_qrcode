@@ -70,10 +70,6 @@ cCrc := PadL(NumToHex(nCrc), 4, "0")
 Return cCrc
 
 #pragma BEGINDUMP
-#include "windows.h"
-#include "hbapi.h"
-#include <stdio.h>
-#include <stdint.h>
 #include <stdbool.h>
 
 #ifndef DEF_LIBCRC_CHECKSUM_H
@@ -180,12 +176,6 @@ static void init_crcccitt_tab( void ) {
     crc_tabccitt_init = true;
 
 }
-// ========================================================================
-
-static bool             crc_tab16_init          = false;
-static uint16_t         crc_tab16[256];
-
-
 // ========================================================================
 HB_FUNC( C_EMTCRC_CCITT_FFFF ) // cText --> nTextCRC
 {
