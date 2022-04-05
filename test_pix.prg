@@ -12,6 +12,12 @@ Local cPIX_cidade := "SAO PAULO"      //Nome da Cidade do proprietario do PIX
 Local cMsg := "PAGAMENTO"
 Local cBmp_QRCode := "pix.bmp"
 
+cPIX_CHAVE := "+5519997283044"
+cPIX_NOME := "EDUARDO MOTTA"        //Nome do Proprietario do PIX
+cPIX_cidade := "NOVA ODESSA"      //Nome da Cidade do proprietario do PIX
+cMsg := "PAGAMENTO"
+
+
 cMsg            := '05'+ strzero(len(alltrim(left(alltrim(cMsg),21))),2) + left(alltrim(cMsg),21)  //Reference label até 25 caracteres.
 nTamChave       := 22 + len(alltrim(cPIX_CHAVE))  //Tamanho da chave para ser colocado no registro 26
 
@@ -120,37 +126,8 @@ static void             init_crcccitt_tab( void );
 static bool             crc_tabccitt_init       = false;
 static uint16_t         crc_tabccitt[256];
 
-static void		init_crc_tab( void );
-
 static bool		crc_tab_init		= false;
 static uint16_t		crc_tab[256];
-
-/*
-    * uint16_t crc_xmodem( const unsigned char *input_str, size_t num_bytes );
-    *
-    * The function crc_xmodem() performs a one-pass calculation of an X-Modem CRC
-    * for a byte string that has been passed as a parameter.
-    */
-
-uint16_t crc_xmodem( const unsigned char *input_str, size_t num_bytes ) {
-
-    return crc_ccitt_generic( input_str, num_bytes, CRC_START_XMODEM );
-
-}  /* crc_xmodem */
-
-/*
-    * uint16_t crc_ccitt_1d0f( const unsigned char *input_str, size_t num_bytes );
-    *
-    * The function crc_ccitt_1d0f() performs a one-pass calculation of the CCITT
-    * CRC for a byte string that has been passed as a parameter. The initial value
-    * 0x1d0f is used for the CRC.
-    */
-
-uint16_t crc_ccitt_1d0f( const unsigned char *input_str, size_t num_bytes ) {
-
-    return crc_ccitt_generic( input_str, num_bytes, CRC_START_CCITT_1D0F );
-
-}  /* crc_ccitt_1d0f */
 
 /*
     * uint16_t crc_ccitt_ffff( const unsigned char *input_str, size_t num_bytes );
@@ -264,146 +241,6 @@ static void             init_crc16_tab( void );
 
 static bool             crc_tab16_init          = false;
 static uint16_t         crc_tab16[256];
-
-/*
-    * uint16_t crc_16( const unsigned char *input_str, size_t num_bytes );
-    *
-    * The function crc_16() calculates the 16 bits CRC16 in one pass for a byte
-    * string of which the beginning has been passed to the function. The number of
-    * bytes to check is also a parameter. The number of the bytes in the string is
-    * limited by the constant SIZE_MAX.
-    */
-
-uint16_t crc_16( const unsigned char *input_str, size_t num_bytes ) {
-
-    uint16_t crc;
-    uint16_t tmp;
-    uint16_t short_c;
-    const unsigned char *ptr;
-    size_t a;
-
-    if ( ! crc_tab16_init ) init_crc16_tab();
-
-    crc = CRC_START_16;
-    ptr = input_str;
-
-    if ( ptr != NULL ) for (a=0; a<num_bytes; a++) {
-
-        short_c = 0x00ff & (uint16_t) *ptr;
-        tmp     =  crc       ^ short_c;
-        crc     = (crc >> 8) ^ crc_tab16[ tmp & 0xff ];
-
-        ptr++;
-    }
-
-    return crc;
-
-}  /* crc_16 */
-
-/*
-    * uint16_t crc_modbus( const unsigned char *input_str, size_t num_bytes );
-    *
-    * The function crc_modbus() calculates the 16 bits Modbus CRC in one pass for
-    * a byte string of which the beginning has been passed to the function. The
-    * number of bytes to check is also a parameter.
-    */
-
-uint16_t crc_modbus( const unsigned char *input_str, size_t num_bytes ) {
-
-    uint16_t crc;
-    uint16_t tmp;
-    uint16_t short_c;
-    const unsigned char *ptr;
-    size_t a;
-
-    if ( ! crc_tab16_init ) init_crc16_tab();
-
-    crc = CRC_START_MODBUS;
-    ptr = input_str;
-
-    if ( ptr != NULL ) for (a=0; a<num_bytes; a++) {
-
-        short_c = 0x00ff & (uint16_t) *ptr;
-        tmp     =  crc       ^ short_c;
-        crc     = (crc >> 8) ^ crc_tab16[ tmp & 0xff ];
-
-        ptr++;
-    }
-
-    return crc;
-
-}  /* crc_modbus */
-
-
-/*
-    * uint16_t crc_kermit( const unsigned char *input_str, size_t num_bytes );
-    *
-    * The function crc_kermit() calculates the 16 bits Kermit CRC in one pass for
-    * a byte string of which the beginning has been passed to the function. The
-    * number of bytes to check is also a parameter.
-    */
-
-    uint16_t crc_kermit( const unsigned char *input_str, size_t num_bytes ) {
-
-uint16_t crc;
-uint16_t low_byte;
-uint16_t high_byte;
-const unsigned char *ptr;
-size_t a;
-
-if ( ! crc_tab_init ) init_crc_tab();
-
-crc = CRC_START_KERMIT;
-ptr = input_str;
-
-if ( ptr != NULL ) for (a=0; a<num_bytes; a++) {
-
-    crc = (crc >> 8) ^ crc_tab[ (crc ^ (uint16_t) *ptr++) & 0x00FF ];
-}
-
-low_byte  = (crc & 0xff00) >> 8;
-high_byte = (crc & 0x00ff) << 8;
-crc       = low_byte | high_byte;
-
-return crc;
-
-}  /* crc_kermit */
-
-/*
-* static void init_crc_tab( void );
-*
-* For optimal performance, the  CRC Kermit routine uses a lookup table with
-* values that can be used directly in the XOR arithmetic in the algorithm.
-* This lookup table is calculated by the init_crc_tab() routine, the first
-* time the CRC function is called.
-*/
-
-static void init_crc_tab( void ) {
-
-uint16_t i;
-uint16_t j;
-uint16_t crc;
-uint16_t c;
-
-for (i=0; i<256; i++) {
-
-    crc = 0;
-    c   = i;
-
-    for (j=0; j<8; j++) {
-
-        if ( (crc ^ c) & 0x0001 ) crc = ( crc >> 1 ) ^ CRC_POLY_KERMIT;
-        else                      crc =   crc >> 1;
-
-        c = c >> 1;
-    }
-
-    crc_tab[i] = crc;
-}
-
-crc_tab_init = true;
-
-}  /* init_crc_tab */
 
 
 /*
