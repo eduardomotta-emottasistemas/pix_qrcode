@@ -12,6 +12,7 @@ Local cPIX_cidade := "SAO PAULO"      //Nome da Cidade do proprietario do PIX
 Local cMsg := "PAGAMENTO"
 Local cBmp_QRCode := "pix.bmp"
 
+
 cMsg            := '05'+ strzero(len(alltrim(left(alltrim(cMsg),21))),2) + left(alltrim(cMsg),21)  //Reference label até 25 caracteres.
 nTamChave       := 22 + len(alltrim(cPIX_CHAVE))  //Tamanho da chave para ser colocado no registro 26
 
